@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#a72bbd">
+<title>坂道Secretメッセージ</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="./icon/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon/app_icon-180.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="坂道Secretメッセージ">
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans JP", sans-serif;
+  background: #000;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  .app {
+    width: 390px;
+    height: min(844px, 94vh);
+    border-radius: 36px;
+    box-shadow: 0 0 0 8px #222;
+  }
+}
+
+/* ヘッダー */
+.header {
+  flex: 0 0 82px;
+  height: 82px;
+  background: linear-gradient(
+    110deg,
+    #d36ae1 0%,
+    #ad35c4 55%,
+    #9219ad 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  position: relative;
+  padding-top: env(safe-area-inset-top);
+}
+
+.header-title {
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.settings {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.settings img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* メイン */
+.main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff;
+  scrollbar-width: none;
+}
+
+.main::-webkit-scrollbar {
+  display: none;
+}
+
+/* 画面 */
+.page {
+  display: none;
+  min-height: 100%;
+}
+
+.page.active {
+  display: block;
+}
+
+/* セクション */
+.section {
+  padding-bottom: 25px;
+}
+
+.section-title {
+  text-align: center;
+  color: #9634b2;
+  font-size: 22px;
+  font-weight: 600;
+  padding: 35px 0 30px;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 5px;
+  row-gap: 35px;
+  padding: 0 13px 20px;
+}
+
+.member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #a35bb8;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.member-icon {
+  width: min(25vw, 125px);
+  height: min(25vw, 125px);
+  border-radius: 50%;
+  object-fit: contain;
+  background: #f7e1d2;
+  padding: 10px;
+}
+
+.member-name {
+  margin-top: 16px;
+  font-size: clamp(13px, 3.5vw, 17px);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* セクション区切り */
+.section-divider {
+  width: calc(100% - 40px);
+  height: 1px;
+  margin: 5px auto 0;
+  background: #ddd;
+}
+
+/* 下部メニュー */
+.bottom-nav {
+  flex: 0 0 80px;
+  height: 80px;
+  background: #f7f7f7;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  color: #9634b2;
+}
+
+.nav-icon {
+  width: 27px;
+  height: 27px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.nav-label {
+  font-size: 12px;
+}
+
+/* Letter画面 */
+.letter-page {
+  background: #f7f7f7;
+  padding: 0 0 20px;
+}
+
+/* 上部切り替えボタン */
+.letter-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.letter-tab {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 8px;
+  border: 1px solid #d8c1df;
+  border-radius: 9px;
+  background: #fff;
+  color: #9634b2;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.letter-tab.active {
+  color: #fff;
+  background: #9634b2;
+  border-color: #9634b2;
+}
+
+/* 埋め込み */
+.letter-content {
+  display: none;
+  width: 100%;
+  background: #fff;
+}
+
+.letter-content.active {
+  display: block;
+}
+
+.letter-frame {
+  display: block;
+  width: 100%;
+  height: 780px;
+  border: 0;
+  background: #fff;
+}
+
+@media (max-width: 599px) {
+  .letter-tabs {
+    padding: 10px 8px;
+    gap: 7px;
+  }
+
+  .letter-tab {
+    min-height: 43px;
+    font-size: 13px;
+  }
+
+  .letter-frame {
+    height: calc(100dvh - 220px);
+    min-height: 520px;
+  }
+}
+
+/* 設定メニュー */
+.settings-panel {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 75px;
+  right: 12px;
+  width: 180px;
+  background: white;
+  box-shadow: 0 3px 15px #0003;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.settings-panel.show {
+  display: block;
+}
+
+.settings-panel div {
+  padding: 10px 5px;
+  color: #555;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-title" id="headerTitle">
+      坂道Secretメッセージ
+    </div>
+
+    <button class="settings" id="settingsButton" aria-label="設定">
+      <img src="icon/setting_icon.svg" alt="">
+    </button>
+  </header>
+
+  <!-- 設定メニュー -->
+  <div class="settings-panel" id="settingsPanel">
+    <div>設定</div>
+    <div>通知設定</div>
+    <div>ヘルプ</div>
+  </div>
+
+  <!-- メイン -->
+  <main class="main">
+
+    <!-- Talk画面 -->
+    <section class="page active" id="talkPage">
+
+      <div class="section">
+        <div class="section-title">🔞ガールズルール🔞</div>
+
+        <div class="member-grid">
+
+          <a class="member" href="talk/index.html?room=Owner_3saka">
+            <img
+              class="member-icon"
+              src="icon/46_icon.svg"
+              alt="3坂道"
+            >
+            <span class="member-name">3坂道</span>
+          </a>
+
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <div class="section-title">from the Internet</div>
+
+        <div class="member-grid">
+
+          <a class="member" href="talk/index.html?room=Internet_nogizaka46">
+            <img
+              class="member-icon"
+              src="icon/46_icon.svg"
+              alt="乃木坂46"
+            >
+            <span class="member-name">乃木坂46</span>
+          </a>
+
+          <a class="member" href="talk/index.html?room=Internet_sakurazaka46">
+            <img
+              class="member-icon"
+              src="icon/46_icon.svg"
+              alt="櫻坂46"
+            >
+            <span class="member-name">櫻坂46</span>
+          </a>
+
+          <a class="member" href="talk/index.html?room=Internet_hinatazaka46">
+            <img
+              class="member-icon"
+              src="icon/46_icon.svg"
+              alt="日向坂46"
+            >
+            <span class="member-name">日向坂46</span>
+          </a>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Letter画面 -->
+    <section class="page letter-page" id="letterPage">
+
+      <!-- 上部切り替えボタン -->
+      <div class="letter-tabs" role="tablist" aria-label="Letterメニュー">
+
+        <button
+          class="letter-tab active"
+          id="mondTab"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="mondContent"
+          data-letter="mond"
+        >
+          質問・感想など
+        </button>
+
+        <button
+          class="letter-tab"
+          id="requestTab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="requestContent"
+          data-letter="request"
+        >
+          リクエスト
+        </button>
+
+      </div>
+
+      <!-- 質問・感想など -->
+      <div class="letter-content active" id="mondContent" role="tabpanel">
+
+        <iframe
+          class="letter-frame"
+          src="https://mond.how/saka_message?lang=ja"
+          title="質問・感想など"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="clipboard-write"
+        ></iframe>
+
+      </div>
+
+      <!-- リクエスト -->
+      <div
+        class="letter-content"
+        id="requestContent"
+        role="tabpanel"
+        hidden
+      >
+
+        <iframe
+          class="letter-frame"
+          src="https://docs.google.com/forms/d/e/1FAIpQLSccKwbtn71royy7MjgPuM3Uu8uCNVrrvnz-T2XFmEmFAHUzFg/viewform?embedded=true"
+          title="リクエストフォーム"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 下部メニュー -->
+  <nav class="bottom-nav">
+
+    <div class="nav-item active" data-page="Talk">
+      <div class="nav-icon">
+        <img src="icon/talk_icon.svg" alt="">
+      </div>
+      <span class="nav-label">Talk</span>
+    </div>
+
+    <div class="nav-item" data-page="Letter">
+      <div class="nav-icon">
+        <img src="icon/letter_icon.svg" alt="">
+      </div>
+      <span class="nav-label">Letter</span>
+    </div>
+
+  </nav>
+
+</div>
+
+<script>
+/* =========================
+   設定メニュー
+========================= */
+
+const settingsButton =
+  document.getElementById('settingsButton');
+
+const settingsPanel =
+  document.getElementById('settingsPanel');
+
+settingsButton.addEventListener('click', (event) => {
+  event.stopPropagation();
+  settingsPanel.classList.toggle('show');
+});
+
+document.addEventListener('click', (event) => {
+
+  if (
+    !settingsPanel.contains(event.target) &&
+    !settingsButton.contains(event.target)
+  ) {
+    settingsPanel.classList.remove('show');
+  }
+
+});
+
+/* =========================
+   画面切り替え
+========================= */
+
+const main = document.querySelector('.main');
+
+const talkPage =
+  document.getElementById('talkPage');
+
+const letterPage =
+  document.getElementById('letterPage');
+
+const headerTitle =
+  document.getElementById('headerTitle');
+
+/* =========================
+   Letter内の切り替え
+========================= */
+
+const letterTabs =
+  document.querySelectorAll('.letter-tab');
+
+const letterContents = {
+  mond: document.getElementById('mondContent'),
+  request: document.getElementById('requestContent')
+};
+
+letterTabs.forEach(tab => {
+
+  tab.addEventListener('click', () => {
+
+    const selected = tab.dataset.letter;
+
+    // ボタンの状態を変更
+    letterTabs.forEach(button => {
+
+      const isActive = button === tab;
+
+      button.classList.toggle('active', isActive);
+
+      button.setAttribute(
+        'aria-selected',
+        String(isActive)
+      );
+
+    });
+
+    // 埋め込み表示を切り替え
+    Object.entries(letterContents).forEach(([key, content]) => {
+
+      const isActive = key === selected;
+
+      content.classList.toggle('active', isActive);
+
+      content.hidden = !isActive;
+
+    });
+
+    main.scrollTop = 0;
+
+  });
+
+});
+
+/* =========================
+   Talk / Letter切り替え
+========================= */
+
+document.querySelectorAll('.nav-item').forEach(item => {
+
+  item.addEventListener('click', () => {
+
+    const page = item.dataset.page;
+
+    document.querySelectorAll('.nav-item').forEach(nav => {
+      nav.classList.remove('active');
+    });
+
+    item.classList.add('active');
+
+    settingsPanel.classList.remove('show');
+
+    if (page === 'Talk') {
+
+      talkPage.classList.add('active');
+      letterPage.classList.remove('active');
+
+      headerTitle.textContent =
+        '坂道Secretメッセージ';
+
+      main.scrollTop = 0;
+
+    } else if (page === 'Letter') {
+
+      letterPage.classList.add('active');
+      talkPage.classList.remove('active');
+
+      headerTitle.textContent = 'Letter';
+
+      main.scrollTop = 0;
+
+    }
+
+  });
+
+});
+</script>
+
+<script>
+/* =========================
+   PWA Service Worker
+========================= */
+
+if ('serviceWorker' in navigator) {
+
+  window.addEventListener('load', () => {
+
+    navigator.serviceWorker.register('./sw.js')
+      .catch(error => {
+        console.error(
+          'Service Worker registration failed:',
+          error
+        );
+      });
+
+  });
+
+}
+</script>
+
+</body>
+</html>
